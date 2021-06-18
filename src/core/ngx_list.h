@@ -31,6 +31,13 @@ typedef struct {
 } ngx_list_t;
 
 
+typedef struct {
+    ngx_list_part_t *part;
+    size_t size;
+    ngx_uint_t i;
+} ngx_list_iter_t;
+
+
 ngx_list_t *ngx_list_create(ngx_pool_t *pool, ngx_uint_t n, size_t size);
 
 static ngx_inline ngx_int_t
@@ -78,6 +85,13 @@ ngx_list_init(ngx_list_t *list, ngx_pool_t *pool, ngx_uint_t n, size_t size)
 
 
 void *ngx_list_push(ngx_list_t *list);
+
+
+ngx_list_iter_t ngx_list_iter(ngx_list_t *list);
+
+ngx_int_t ngx_list_iter_has_next(const ngx_list_iter_t *iter);
+
+void *ngx_list_iter_next(ngx_list_iter_t *iter);
 
 
 #endif /* _NGX_LIST_H_INCLUDED_ */

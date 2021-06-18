@@ -61,3 +61,27 @@ ngx_list_push(ngx_list_t *l)
 
     return elt;
 }
+
+ngx_list_iter_t ngx_list_iter(ngx_list_t *list) {
+    ngx_list_iter_t iter = {&list->part, list->size, 0};
+    return iter;
+}
+
+ngx_int_t ngx_list_iter_has_next(const ngx_list_iter_t *iter) {
+    return iter->i < iter->part->nelts || iter->part->next != NULL;
+}
+
+void *ngx_list_iter_next(ngx_list_iter_t *iter) {
+    void *data = NULL;
+    if (iter->i >= iter->part->nelts) {
+        if (iter->part->next != NULL) {
+            iter->part = iter->part->next;
+            iter->i = 0;
+        } else {
+            return NULL;
+        }
+    }
+    data = (void *) ((ngx_int_t) iter->part->elts + iter->i * iter->size);
+    iter->i++;
+    return data;
+}

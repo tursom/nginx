@@ -1,0 +1,7 @@
+.idea
+cmake-build-*
+objs
+out
+tmp
+CMakeLists.txt
+Makefile
