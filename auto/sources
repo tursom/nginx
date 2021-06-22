@@ -44,7 +44,8 @@ CORE_DEPS="src/core/nginx.h \
            src/core/ngx_syslog.h"
 
 
-CORE_SRCS="src/core/nginx.c \
+CORE_SRCS="src/core/main.c \
+           src/core/nginx.c \
            src/core/ngx_log.c \
            src/core/ngx_palloc.c \
            src/core/ngx_array.c \

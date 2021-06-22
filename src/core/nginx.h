@@ -22,5 +22,6 @@
 #define NGINX_VAR          "NGINX"
 #define NGX_OLDPID_EXT     ".oldbin"
 
+extern char **ngx_os_environ;
 
 #endif /* _NGINX_H_INCLUDED_ */
