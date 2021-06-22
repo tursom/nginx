@@ -10,9 +10,8 @@
 
 
 ngx_list_t *
-ngx_list_create(ngx_pool_t *pool, ngx_uint_t n, size_t size)
-{
-    ngx_list_t  *list;
+ngx_list_create(ngx_pool_t *pool, ngx_uint_t n, size_t size) {
+    ngx_list_t *list;
 
     list = ngx_palloc(pool, sizeof(ngx_list_t));
     if (list == NULL) {
@@ -28,10 +27,9 @@ ngx_list_create(ngx_pool_t *pool, ngx_uint_t n, size_t size)
 
 
 void *
-ngx_list_push(ngx_list_t *l)
-{
-    void             *elt;
-    ngx_list_part_t  *last;
+ngx_list_push(ngx_list_t *l) {
+    void *elt;
+    ngx_list_part_t *last;
 
     last = l->last;
 
@@ -67,7 +65,7 @@ ngx_list_iter_t ngx_list_iter(ngx_list_t *list) {
     return iter;
 }
 
-ngx_int_t ngx_list_iter_has_next(const ngx_list_iter_t *iter) {
+ngx_uint_t ngx_list_iter_has_next(const ngx_list_iter_t *iter) {
     return iter->i < iter->part->nelts || iter->part->next != NULL;
 }
 

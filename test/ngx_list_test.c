@@ -19,6 +19,8 @@ int main(int argc, char **argv) {
         str->data = (u_char *) buf;
     }
 
+    ngx_array_t *a;
+
     ngx_list_iter_t iter = ngx_list_iter(list);
     while (ngx_list_iter_has_next(&iter)) {
         ngx_str_t *str = ngx_list_iter_next(&iter);

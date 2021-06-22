@@ -2,7 +2,6 @@
 #include <ngx_core.h>
 #include <nginx.h>
 #include <ngx_process.h>
-#include <ngx_file.h>
 
 static void ngx_show_version_info(void);
 static ngx_int_t ngx_add_inherited_sockets(ngx_cycle_t *cycle);
@@ -22,14 +21,13 @@ static char        *ngx_signal;
 
 
 int ngx_cdecl
-main(int argc, char *const *argv)
-{
-    ngx_buf_t        *b;
-    ngx_log_t        *log;
-    ngx_uint_t        i;
-    ngx_cycle_t      *cycle, init_cycle;
-    ngx_conf_dump_t  *cd;
-    ngx_core_conf_t  *ccf;
+main(int argc, char *const *argv) {
+    ngx_buf_t *b;
+    ngx_log_t *log;
+    ngx_uint_t i;
+    ngx_cycle_t *cycle, init_cycle;
+    ngx_conf_dump_t *cd;
+    ngx_core_conf_t *ccf;
 
     ngx_debug_init();
 
@@ -65,9 +63,9 @@ main(int argc, char *const *argv)
         return 1;
     }
 
-    /* STUB */
+        /* STUB */
 #if (NGX_OPENSSL)
-    ngx_ssl_init(log);
+        ngx_ssl_init(log);
 #endif
 
     /*

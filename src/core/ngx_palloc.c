@@ -10,15 +10,16 @@
 
 
 static ngx_inline void *ngx_palloc_small(ngx_pool_t *pool, size_t size,
-    ngx_uint_t align);
+                                         ngx_uint_t align);
+
 static void *ngx_palloc_block(ngx_pool_t *pool, size_t size);
+
 static void *ngx_palloc_large(ngx_pool_t *pool, size_t size);
 
 
 ngx_pool_t *
-ngx_create_pool(size_t size, ngx_log_t *log)
-{
-    ngx_pool_t  *p;
+ngx_create_pool(size_t size, ngx_log_t *log) {
+    ngx_pool_t *p;
 
     p = ngx_memalign(NGX_POOL_ALIGNMENT, size, log);
     if (p == NULL) {
@@ -44,11 +45,10 @@ ngx_create_pool(size_t size, ngx_log_t *log)
 
 
 void
-ngx_destroy_pool(ngx_pool_t *pool)
-{
-    ngx_pool_t          *p, *n;
-    ngx_pool_large_t    *l;
-    ngx_pool_cleanup_t  *c;
+ngx_destroy_pool(ngx_pool_t *pool) {
+    ngx_pool_t *p, *n;
+    ngx_pool_large_t *l;
+    ngx_pool_cleanup_t *c;
 
     for (c = pool->cleanup; c; c = c->next) {
         if (c->handler) {
@@ -97,10 +97,9 @@ ngx_destroy_pool(ngx_pool_t *pool)
 
 
 void
-ngx_reset_pool(ngx_pool_t *pool)
-{
-    ngx_pool_t        *p;
-    ngx_pool_large_t  *l;
+ngx_reset_pool(ngx_pool_t *pool) {
+    ngx_pool_t *p;
+    ngx_pool_large_t *l;
 
     for (l = pool->large; l; l = l->next) {
         if (l->alloc) {
@@ -120,8 +119,7 @@ ngx_reset_pool(ngx_pool_t *pool)
 
 
 void *
-ngx_palloc(ngx_pool_t *pool, size_t size)
-{
+ngx_palloc(ngx_pool_t *pool, size_t size) {
 #if !(NGX_DEBUG_PALLOC)
     if (size <= pool->max) {
         return ngx_palloc_small(pool, size, 1);
@@ -133,8 +131,7 @@ ngx_palloc(ngx_pool_t *pool, size_t size)
 
 
 void *
-ngx_pnalloc(ngx_pool_t *pool, size_t size)
-{
+ngx_pnalloc(ngx_pool_t *pool, size_t size) {
 #if !(NGX_DEBUG_PALLOC)
     if (size <= pool->max) {
         return ngx_palloc_small(pool, size, 0);
@@ -146,10 +143,9 @@ ngx_pnalloc(ngx_pool_t *pool, size_t size)
 
 
 static ngx_inline void *
-ngx_palloc_small(ngx_pool_t *pool, size_t size, ngx_uint_t align)
-{
-    u_char      *m;
-    ngx_pool_t  *p;
+ngx_palloc_small(ngx_pool_t *pool, size_t size, ngx_uint_t align) {
+    u_char *m;
+    ngx_pool_t *p;
 
     p = pool->current;
 
@@ -175,11 +171,10 @@ ngx_palloc_small(ngx_pool_t *pool, size_t size, ngx_uint_t align)
 
 
 static void *
-ngx_palloc_block(ngx_pool_t *pool, size_t size)
-{
-    u_char      *m;
-    size_t       psize;
-    ngx_pool_t  *p, *new;
+ngx_palloc_block(ngx_pool_t *pool, size_t size) {
+    u_char *m;
+    size_t psize;
+    ngx_pool_t *p, *new;
 
     psize = (size_t) (pool->d.end - (u_char *) pool);
 
@@ -211,11 +206,10 @@ ngx_palloc_block(ngx_pool_t *pool, size_t size)
 
 
 static void *
-ngx_palloc_large(ngx_pool_t *pool, size_t size)
-{
-    void              *p;
-    ngx_uint_t         n;
-    ngx_pool_large_t  *large;
+ngx_palloc_large(ngx_pool_t *pool, size_t size) {
+    void *p;
+    ngx_uint_t n;
+    ngx_pool_large_t *large;
 
     p = ngx_alloc(size, pool->log);
     if (p == NULL) {
@@ -250,10 +244,9 @@ ngx_palloc_large(ngx_pool_t *pool, size_t size)
 
 
 void *
-ngx_pmemalign(ngx_pool_t *pool, size_t size, size_t alignment)
-{
-    void              *p;
-    ngx_pool_large_t  *large;
+ngx_pmemalign(ngx_pool_t *pool, size_t size, size_t alignment) {
+    void *p;
+    ngx_pool_large_t *large;
 
     p = ngx_memalign(alignment, size, pool->log);
     if (p == NULL) {
@@ -275,9 +268,8 @@ ngx_pmemalign(ngx_pool_t *pool, size_t size, size_t alignment)
 
 
 ngx_int_t
-ngx_pfree(ngx_pool_t *pool, void *p)
-{
-    ngx_pool_large_t  *l;
+ngx_pfree(ngx_pool_t *pool, void *p) {
+    ngx_pool_large_t *l;
 
     for (l = pool->large; l; l = l->next) {
         if (p == l->alloc) {
@@ -295,8 +287,7 @@ ngx_pfree(ngx_pool_t *pool, void *p)
 
 
 void *
-ngx_pcalloc(ngx_pool_t *pool, size_t size)
-{
+ngx_pcalloc(ngx_pool_t *pool, size_t size) {
     void *p;
 
     p = ngx_palloc(pool, size);
@@ -309,9 +300,8 @@ ngx_pcalloc(ngx_pool_t *pool, size_t size)
 
 
 ngx_pool_cleanup_t *
-ngx_pool_cleanup_add(ngx_pool_t *p, size_t size)
-{
-    ngx_pool_cleanup_t  *c;
+ngx_pool_cleanup_add(ngx_pool_t *p, size_t size) {
+    ngx_pool_cleanup_t *c;
 
     c = ngx_palloc(p, sizeof(ngx_pool_cleanup_t));
     if (c == NULL) {
@@ -340,10 +330,9 @@ ngx_pool_cleanup_add(ngx_pool_t *p, size_t size)
 
 
 void
-ngx_pool_run_cleanup_file(ngx_pool_t *p, ngx_fd_t fd)
-{
-    ngx_pool_cleanup_t       *c;
-    ngx_pool_cleanup_file_t  *cf;
+ngx_pool_run_cleanup_file(ngx_pool_t *p, ngx_fd_t fd) {
+    ngx_pool_cleanup_t *c;
+    ngx_pool_cleanup_file_t *cf;
 
     for (c = p->cleanup; c; c = c->next) {
         if (c->handler == ngx_pool_cleanup_file) {
@@ -361,9 +350,8 @@ ngx_pool_run_cleanup_file(ngx_pool_t *p, ngx_fd_t fd)
 
 
 void
-ngx_pool_cleanup_file(void *data)
-{
-    ngx_pool_cleanup_file_t  *c = data;
+ngx_pool_cleanup_file(void *data) {
+    ngx_pool_cleanup_file_t *c = data;
 
     ngx_log_debug1(NGX_LOG_DEBUG_ALLOC, c->log, 0, "file cleanup: fd:%d",
                    c->fd);
@@ -376,11 +364,10 @@ ngx_pool_cleanup_file(void *data)
 
 
 void
-ngx_pool_delete_file(void *data)
-{
-    ngx_pool_cleanup_file_t  *c = data;
+ngx_pool_delete_file(void *data) {
+    ngx_pool_cleanup_file_t *c = data;
 
-    ngx_err_t  err;
+    ngx_err_t err;
 
     ngx_log_debug2(NGX_LOG_DEBUG_ALLOC, c->log, 0, "file cleanup: fd:%d %s",
                    c->fd, c->name);

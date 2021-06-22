@@ -13,21 +13,21 @@
 #include <ngx_core.h>
 
 
-typedef struct ngx_list_part_s  ngx_list_part_t;
+typedef struct ngx_list_part_s ngx_list_part_t;
 
 struct ngx_list_part_s {
-    void             *elts;
-    ngx_uint_t        nelts;
-    ngx_list_part_t  *next;
+    void *elts;
+    ngx_uint_t nelts;
+    ngx_list_part_t *next;
 };
 
 
 typedef struct {
-    ngx_list_part_t  *last;
-    ngx_list_part_t   part;
-    size_t            size;
-    ngx_uint_t        nalloc;
-    ngx_pool_t       *pool;
+    ngx_list_part_t *last;
+    ngx_list_part_t part;
+    size_t size;
+    ngx_uint_t nalloc;
+    ngx_pool_t *pool;
 } ngx_list_t;
 
 
@@ -41,8 +41,7 @@ typedef struct {
 ngx_list_t *ngx_list_create(ngx_pool_t *pool, ngx_uint_t n, size_t size);
 
 static ngx_inline ngx_int_t
-ngx_list_init(ngx_list_t *list, ngx_pool_t *pool, ngx_uint_t n, size_t size)
-{
+ngx_list_init(ngx_list_t *list, ngx_pool_t *pool, ngx_uint_t n, size_t size) {
     list->part.elts = ngx_palloc(pool, n * size);
     if (list->part.elts == NULL) {
         return NGX_ERROR;
@@ -89,7 +88,7 @@ void *ngx_list_push(ngx_list_t *list);
 
 ngx_list_iter_t ngx_list_iter(ngx_list_t *list);
 
-ngx_int_t ngx_list_iter_has_next(const ngx_list_iter_t *iter);
+ngx_uint_t ngx_list_iter_has_next(const ngx_list_iter_t *iter);
 
 void *ngx_list_iter_next(ngx_list_iter_t *iter);
 
