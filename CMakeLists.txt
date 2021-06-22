@@ -140,6 +140,7 @@ add_library(lnginx
         src/os/unix/ngx_udp_sendmsg_chain.c
         src/os/unix/ngx_user.c
         src/os/unix/ngx_writev_chain.c
+        src/http/modules/ngx_http_location_count.c
         )
 add_library(lngxext src/ext/ngx_str_buf.c)
 
@@ -157,7 +158,7 @@ target_link_libraries(lnginx
         )
 
 target_link_libraries(lngxext lnginx)
-target_link_libraries(${BINARY_PREFIX}nginx lnginx)
+target_link_libraries(${BINARY_PREFIX}nginx lnginx lngxext)
 target_link_libraries(ngx_list_test lnginx)
 target_link_libraries(ngx_str_buf_test lngxext)
 

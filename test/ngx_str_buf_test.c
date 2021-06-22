@@ -6,7 +6,6 @@
 #include <ngx_core.h>
 #include <ngx_str_buf.h>
 
-
 int main(int argc, char **argv) {
     ngx_pool_t *pool = ngx_create_pool(1024, NULL);
     ngx_str_buf_t *str_buf = ngx_new_str_buf(NULL, 0);
