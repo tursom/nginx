@@ -4,3 +4,4 @@ objs
 out
 tmp
 Makefile
+.clion.source.upload.marker
