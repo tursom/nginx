@@ -17,6 +17,7 @@ include_directories(src/event)
 include_directories(src/core)
 include_directories(src/http)
 include_directories(src/event/modules)
+include_directories(src/ext)
 
 add_library(lnginx
         objs/ngx_modules.c
@@ -140,9 +141,11 @@ add_library(lnginx
         src/os/unix/ngx_user.c
         src/os/unix/ngx_writev_chain.c
         )
+add_library(lngxext src/ext/ngx_str_buf.c)
 
 add_executable(${BINARY_PREFIX}nginx src/core/main.c)
 add_executable(ngx_list_test test/ngx_list_test.c)
+add_executable(ngx_str_buf_test test/ngx_str_buf_test.c)
 
 target_link_libraries(lnginx
         -lcrypt
@@ -153,9 +156,10 @@ target_link_libraries(lnginx
         -lz
         )
 
+target_link_libraries(lngxext lnginx)
 target_link_libraries(${BINARY_PREFIX}nginx lnginx)
-
 target_link_libraries(ngx_list_test lnginx)
+target_link_libraries(ngx_str_buf_test lngxext)
 
 install(TARGETS ${BINARY_PREFIX}nginx DESTINATION bin)
 
