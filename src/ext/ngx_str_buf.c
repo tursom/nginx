@@ -4,6 +4,14 @@
 
 #include "ngx_str_buf.h"
 
+
+struct ngx_str_buf_s {
+    u_char *buf;
+    size_t used;
+    size_t buf_size;
+    ngx_pool_t *pool;
+};
+
 ngx_str_buf_t *ngx_new_str_buf(ngx_pool_t *pool, size_t init_buf_size) {
     if (pool == NULL) {
         pool = ngx_create_pool(1024, NULL);
@@ -30,56 +38,33 @@ ngx_str_buf_t *ngx_new_str_buf(ngx_pool_t *pool, size_t init_buf_size) {
     return buf;
 }
 
-ngx_str_buf_t *new_ngx_str_buf_without_pool(size_t init_buf_size, ngx_log_t *log) {
-    ngx_str_buf_t *buf = ngx_alloc(sizeof(ngx_str_buf_t), log);
-    if (buf == NULL) {
-        return NULL;
-    }
-
-    buf->log = log;
-    buf->pool = NULL;
-    buf->buf = ngx_alloc(init_buf_size, log);
-    if (buf->buf == NULL) {
-        ngx_free(buf);
-        return NULL;
-    }
-    buf->buf_size = init_buf_size;
-    buf->used = 0;
-
-    return buf;
-}
-
 ngx_uint_t ngx_str_buf_append(ngx_str_buf_t *str_buf, const void *buf, size_t size) {
-    u_char *target = ngx_str_buf_append_ptr(str_buf, size);
+    u_char *target = ngx_str_buf_alloc(str_buf, size);
     if (target == NULL) {
         return 0;
     }
 
-    memcpy(target, buf, size);
+    ngx_memcpy(target, buf, size);
     str_buf->used += size;
     str_buf->buf[str_buf->used] = 0;
     return 1;
 }
 
-void *ngx_str_buf_append_ptr(ngx_str_buf_t *str_buf, size_t size) {
+void *ngx_str_buf_alloc(ngx_str_buf_t *str_buf, size_t size) {
     if (str_buf->buf_size - str_buf->used - 1 < size) {
         size_t new_buf_size = str_buf->buf_size << 1;
         if (new_buf_size <= 0) new_buf_size = 16;
         while (new_buf_size < size + 1)new_buf_size <<= 1;
 
         u_char *old_buf = str_buf->buf;
-        if (str_buf->pool != NULL) {
-            str_buf->buf = ngx_palloc(str_buf->pool, new_buf_size);
-        } else {
-            str_buf->buf = ngx_alloc(new_buf_size, str_buf->log);
-        }
+        str_buf->buf = ngx_palloc(str_buf->pool, new_buf_size);
         if (str_buf->buf == NULL) {
             str_buf->buf = old_buf;
             return NULL;
         }
 
         if (old_buf != NULL) {
-            memcpy(str_buf->buf, old_buf, str_buf->used);
+            ngx_memcpy(str_buf->buf, old_buf, str_buf->used);
         }
         str_buf->buf_size = new_buf_size;
     }
@@ -87,13 +72,9 @@ void *ngx_str_buf_append_ptr(ngx_str_buf_t *str_buf, size_t size) {
     return str_buf->buf + str_buf->used;
 }
 
-ngx_str_t *ngx_str_buf_to_str(ngx_str_buf_t *str_buf) {
+ngx_str_t *ngx_str_buf_to_str_snap(ngx_str_buf_t *str_buf) {
     ngx_str_t *str;
-    if (str_buf->pool != NULL) {
-        str = ngx_palloc(str_buf->pool, sizeof(ngx_str_t));
-    } else {
-        str = ngx_alloc(sizeof(ngx_str_t), str_buf->log);
-    }
+    str = ngx_palloc(str_buf->pool, sizeof(ngx_str_t));
     if (str == NULL) {
         return NULL;
     }
@@ -103,26 +84,17 @@ ngx_str_t *ngx_str_buf_to_str(ngx_str_buf_t *str_buf) {
 }
 
 ngx_str_t *ngx_str_buf_to_str_cpy(ngx_str_buf_t *str_buf) {
-    return ngx_str_buf_to_str_pool(str_buf, str_buf->pool);
+    return ngx_str_buf_to_str(str_buf, str_buf->pool);
 }
 
-ngx_str_t *ngx_str_buf_to_str_pool(ngx_str_buf_t *str_buf, ngx_pool_t *pool) {
+ngx_str_t *ngx_str_buf_to_str(ngx_str_buf_t *str_buf, ngx_pool_t *pool) {
     ngx_str_t *str;
-    if (pool != NULL) {
-        str = ngx_palloc(pool, sizeof(ngx_str_t));
-    } else {
-        str = ngx_alloc(sizeof(ngx_str_t), str_buf->log);
-    }
+    str = ngx_palloc(pool, sizeof(ngx_str_t));
     if (str == NULL) {
         return NULL;
     }
 
-    str->data = ngx_palloc(pool, str_buf->used);
-    if (pool != NULL) {
-        str->data = ngx_palloc(pool, str_buf->used + 1);
-    } else {
-        str->data = ngx_alloc(str_buf->used + 1, str_buf->log);
-    }
+    str->data = ngx_palloc(pool, str_buf->used + 1);
     if (str->data == NULL) {
         if (pool != NULL) {
             ngx_pfree(pool, str);
@@ -131,7 +103,7 @@ ngx_str_t *ngx_str_buf_to_str_pool(ngx_str_buf_t *str_buf, ngx_pool_t *pool) {
         }
         return NULL;
     }
-    memcpy(str->data, str_buf->buf, str_buf->used + 1);
+    ngx_memcpy(str->data, str_buf->buf, str_buf->used + 1);
 
     str->len = str_buf->used;
     return str;
@@ -139,4 +111,26 @@ ngx_str_t *ngx_str_buf_to_str_pool(ngx_str_buf_t *str_buf, ngx_pool_t *pool) {
 
 void ngx_finish_str_buf(ngx_str_buf_t *str_buf) {
     ngx_destroy_pool(str_buf->pool);
+}
+
+ngx_uint_t ngx_str_buf_used(ngx_str_buf_t *str_buf, size_t size) {
+    if (str_buf->used + size + 1 > str_buf->buf_size) {
+        return 0;
+    }
+    str_buf->used += size;
+    str_buf->buf[str_buf->used] = 0;
+    return 1;
+}
+
+void ngx_reset_str_buf(ngx_str_buf_t *str_buf) {
+    str_buf->used = 0;
+    str_buf->buf[0] = 0;
+}
+
+size_t ngx_str_buf_get_buf_size(ngx_str_buf_t *str_buf) {
+    return str_buf->buf_size;
+}
+
+size_t ngx_str_buf_get_used(ngx_str_buf_t *str_buf) {
+    return str_buf->used;
 }
