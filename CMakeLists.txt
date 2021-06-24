@@ -142,7 +142,7 @@ add_library(lnginx
         src/os/unix/ngx_writev_chain.c
         src/http/modules/ngx_http_location_count.c
         )
-add_library(lngxext src/ext/ngx_str_buf.c)
+add_library(lngxext src/ext/ngx_str_buf.c src/ext/ngx_str_poll.c)
 
 add_executable(${BINARY_PREFIX}nginx src/core/main.c)
 add_executable(ngx_list_test test/ngx_list_test.c)

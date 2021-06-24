@@ -12,6 +12,8 @@ struct ngx_str_buf_s {
     ngx_pool_t *pool;
 };
 
+ngx_str_t NGX_STR_BUF_APPEND_END = {0, NULL};
+
 ngx_str_buf_t *ngx_new_str_buf(ngx_pool_t *pool, size_t init_buf_size) {
     if (pool == NULL) {
         pool = ngx_create_pool(1024, NULL);
@@ -38,14 +40,14 @@ ngx_str_buf_t *ngx_new_str_buf(ngx_pool_t *pool, size_t init_buf_size) {
     return buf;
 }
 
-ngx_uint_t ngx_str_buf_append(ngx_str_buf_t *str_buf, const void *buf, size_t size) {
-    u_char *target = ngx_str_buf_alloc(str_buf, size);
+ngx_uint_t ngx_str_buf_append(ngx_str_buf_t *str_buf, const ngx_str_t *str) {
+    u_char *target = ngx_str_buf_alloc(str_buf, str->len);
     if (target == NULL) {
         return 0;
     }
 
-    ngx_memcpy(target, buf, size);
-    str_buf->used += size;
+    ngx_memcpy(target, str->data, str->len);
+    str_buf->used += str->len;
     str_buf->buf[str_buf->used] = 0;
     return 1;
 }
@@ -55,6 +57,10 @@ void *ngx_str_buf_alloc(ngx_str_buf_t *str_buf, size_t size) {
         size_t new_buf_size = str_buf->buf_size << 1;
         if (new_buf_size <= 0) new_buf_size = 16;
         while (new_buf_size < size + 1)new_buf_size <<= 1;
+
+        ngx_log_debug2(NGX_LOG_DEBUG_CORE, str_buf->pool->log, 0,
+                       "str_buf resized. old size: %zu, new size: %zu",
+                       str_buf->buf_size, new_buf_size);
 
         u_char *old_buf = str_buf->buf;
         str_buf->buf = ngx_palloc(str_buf->pool, new_buf_size);
@@ -133,4 +139,35 @@ size_t ngx_str_buf_get_buf_size(ngx_str_buf_t *str_buf) {
 
 size_t ngx_str_buf_get_used(ngx_str_buf_t *str_buf) {
     return str_buf->used;
+}
+
+ngx_uint_t ngx_str_buf_append_multi__(ngx_str_buf_t *str_buf, ...) {
+    va_list args;
+
+    size_t str_len = 0;
+
+    va_start(args, str_buf);
+    ngx_str_t str = va_arg(args, ngx_str_t);
+    while (str.len != 0 && str.data == NULL) {
+        str_len += str.len;
+        str = va_arg(args, ngx_str_t);
+    }
+    va_end(args);
+
+    u_char *target = ngx_str_buf_alloc(str_buf, str_len);
+    if (target == NULL) {
+        return 0;
+    }
+
+    va_start(args, str_buf);
+    str = va_arg(args, ngx_str_t);
+    while (str.len != 0 && str.data == NULL) {
+        memcpy(target, str.data, str.len);
+        target += str.len;
+        str = va_arg(args, ngx_str_t);
+    }
+    va_end(args);
+
+    ngx_str_buf_used(str_buf, str_len);
+    return 1;
 }

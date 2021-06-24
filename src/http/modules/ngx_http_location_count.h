@@ -1,8 +1,0 @@
-//
-// Created by tursom on 21/6/22.
-//
-
-#ifndef NGINX_NGX_HTTP_LOCATION_COUNT_H
-#define NGINX_NGX_HTTP_LOCATION_COUNT_H
-
-#endif //NGINX_NGX_HTTP_LOCATION_COUNT_H
